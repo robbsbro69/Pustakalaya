@@ -35,7 +35,6 @@ const userSchema = new mongoose.Schema(
     },
     gender: {
       type: String,
-      required: true,
       enum: {
         values: ["male", "female", "others"],
         message: `{VALUE} is not a valid gender`,
@@ -44,6 +43,7 @@ const userSchema = new mongoose.Schema(
     phoneNumber: {
       type: String,
       unique: true,
+      sparse: true,
       validate(value) {
         if (!validator.isMobilePhone(value, "any")) {
           throw new Error("Enter a valid number");
@@ -66,6 +66,7 @@ userSchema.pre("save", async function (next) {
   if (this.isModified("password")) {
     this.password = await bcrypt.hash(this.password, 5);
   }
+  next();
 });
 
 module.exports = mongoose.model("User", userSchema);
