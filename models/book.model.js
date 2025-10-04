@@ -5,16 +5,20 @@ const bookSchema = new mongoose.Schema(
     title: {
       type: String,
       required: true,
+      trim: true,
+      minlength: 1,
     },
     author: {
       type: String,
       required: true,
+      trim: true,
     },
     type: {
       type: String,
       required: true,
       enum: {
         values: ["book", "note"],
+        message: "Type must be either book or note",
       },
     },
     program: {
@@ -22,6 +26,7 @@ const bookSchema = new mongoose.Schema(
       required: true,
       enum: {
         values: ["CSIT", "BIT", "BCA"],
+        message: "Program must be either CSIT,BCA or BIT",
       },
     },
     semester: {
@@ -31,11 +36,15 @@ const bookSchema = new mongoose.Schema(
     },
     fileUrl: {
       type: String,
+      required: true,
+      trim: true,
     },
     tags: [String],
+    default: [],
   },
   {
     timestamps: true,
+    strict: true,
   }
 );
 

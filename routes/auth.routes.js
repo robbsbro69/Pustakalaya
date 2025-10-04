@@ -3,22 +3,14 @@ const authRouter = express.Router();
 const User = require("../models/user.model");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const cookieParser = require("cookie-parser");
-authRouter.use(cookieParser());
 
 authRouter.post("/signup", async (req, res) => {
   try {
-    const { fullName, emailId, password } = req.body;
-    const user = new User({
-      fullName,
-      emailId,
-      password,
-    });
-
+    const user = new User(req.body);
     await user.save();
-    res.status(200).send("Signup Successful!!!!");
+    res.status(201).json({ success: true, message: "Signup Successful!!!!" });
   } catch (error) {
-    res.status(400).send("ERROR : " + error.message);
+    res.status(400).json({ success: false, message: error.message });
   }
 });
 
@@ -42,10 +34,15 @@ authRouter.post("/signin", async (req, res) => {
         expiresIn: "1d",
       }
     );
-    res.cookie("token", token, { httpOnly: true });
-    res.status(200).json({ message: "Login successful" });
+    res
+      .cookie("token", token, { httpOnly: true })
+      .status(200)
+      .json({ message: "Login successful" });
   } catch (error) {
-    res.status(400).send("ERROR : " + error.message);
+    res.status(400).json({
+      success: false,
+      message: error.message,
+    });
   }
 });
 
