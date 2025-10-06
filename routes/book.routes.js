@@ -1,7 +1,6 @@
 const express = require("express");
 const bookRouter = express.Router();
 const Book = require("../models/book.model");
-const { userAuth } = require("../middleware/user.middleware");
 const { default: mongoose } = require("mongoose");
 
 // Add a book

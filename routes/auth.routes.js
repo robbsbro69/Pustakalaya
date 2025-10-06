@@ -1,8 +1,10 @@
 const express = require("express");
 const authRouter = express.Router();
 const User = require("../models/user.model");
+const { userAuth } = require("../middleware/user.middleware");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+const { default: mongoose } = require("mongoose");
 
 authRouter.post("/signup", async (req, res) => {
   try {
@@ -42,6 +44,43 @@ authRouter.post("/signin", async (req, res) => {
     res.status(400).json({
       success: false,
       message: error.message,
+    });
+  }
+});
+
+authRouter.get("/user", userAuth, async (req, res) => {
+  try {
+    res.status(200).json({
+      success: true,
+      data: req.user,
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+});
+
+authRouter.put("/user/:id", userAuth, async (req, res) => {
+  const { id } = req.params;
+  const user = req.body;
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(404).json({
+      success: false,
+      message: "Invalid Id",
+    });
+  }
+  try {
+    const updatedUser = await User.findByIdAndUpdate(id, user, { new: true });
+    res.status(200).json({
+      message: true,
+      data: updatedUser,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Updation Failed",
     });
   }
 });
