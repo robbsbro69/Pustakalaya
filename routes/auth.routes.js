@@ -19,6 +19,11 @@ authRouter.post("/signup", async (req, res) => {
 authRouter.post("/signin", async (req, res) => {
   try {
     const { emailId, password } = req.body;
+    if (!emailId || !password) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Email and password required" });
+    }
     const user = await User.findOne({ emailId: emailId });
     if (!user) {
       throw new Error("Invalid credentials");
@@ -39,13 +44,20 @@ authRouter.post("/signin", async (req, res) => {
     res
       .cookie("token", token, { httpOnly: true })
       .status(200)
-      .json({ message: "Login successful" });
+      .json({ success: true, message: "Login successful", token });
   } catch (error) {
     res.status(400).json({
       success: false,
       message: error.message,
     });
   }
+});
+
+authRouter.post("/logout", (req, res) => {
+  res
+    .clearCookie("token")
+    .status(200)
+    .json({ success: true, message: "Logged out" });
 });
 
 authRouter.get("/user", userAuth, async (req, res) => {
@@ -74,7 +86,8 @@ authRouter.put("/user/:id", userAuth, async (req, res) => {
   try {
     const updatedUser = await User.findByIdAndUpdate(id, user, { new: true });
     res.status(200).json({
-      message: true,
+      success: true,
+      message: "Updated",
       data: updatedUser,
     });
   } catch (error) {
